@@ -1,0 +1,14 @@
+name: gis_env
+channels:
+    - conda-forge
+dependencies:
+    - jupyterlab=4.2.5
+    - pystac-client=0.7.5
+    - planetary-computer=1.0.0
+    - leafmap=0.38.5
+    - matplotlib
+    - dask=2024.9.1
+    - dask-labextension
+    - distributed=2024.9.1
+    - rioxarray=0.17.0
+    - stackstac=0.5.0
