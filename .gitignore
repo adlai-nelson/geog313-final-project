@@ -1,0 +1,7 @@
+*.cache
+*.jupyter
+*.local*
+*.config*
+*.ipython*
+*__pycache__*
+data/
