@@ -4,5 +4,5 @@
 *.config*
 *.ipython*
 *__pycache__*
-*.ipynbcheckpoints*
+*.ipynb_checkpoints*
 data/
