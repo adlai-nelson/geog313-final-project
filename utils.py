@@ -49,8 +49,8 @@ def coarsen_image(stack, scale = 2):
     coarsened = stack.coarsen(x=scale, y=scale, boundary='pad').mean()
     return coarsened
 
-def quartely_composite(stack):
-    composite = stack.resample(time="1Q").mean("time")
+def temporal_composite(stack, interval = "1Q"):
+    composite = stack.resample(time=interval).mean("time")
 
     return composite
 
@@ -69,9 +69,33 @@ def calculate_index(stack, index):
     elif index == "CR":
         value = (vh-vv)
         return value
+    elif index == "BR":
+        value = (vh/vv)
+        return value
     else:
         print("Invalid index name")
+def img_change(stack):
+    """
+    Calculating change from previous image to current image
 
+    time[0] will be NA
+    
+    """
+    shifted = stack.shift(time = 1)
+    change = (stack-shifted)
+    return change
+    
+def deseason_func(x):
+    diff = x - x.mean(dim='time')
+    return diff
+    
+def deseason(stack):
+    """
+
+    """
+    deseason = stack.groupby(stack.time.dt.quarter).map(deseason_func)
+    return deseason
+    
 def linear_trend(stack):
     """
     Function for calculating trend
