@@ -12,7 +12,23 @@ from matplotlib import pyplot as plt
 
 # write function to get bbox for polygons
 
+def preprocess_data(bbox, start, end, index_name="RVI", scale=2, interval="1Q", deseason=False):
+    """
+    This function takes 
+    """
+    search = get_sar_pc(bbox, start, end)
+    stack = items_to_xarray(search, bbox)
+    index = calculate_index(stack, index_name)
+    coarsened = coarsen_image(index, scale)
+    composite = temporal_composite(coarsened, interval)
+    if deseason==True:
+        return deseason_quarter(composite)
+    else:
+        return composite
 
+
+
+    
 def get_sar_pc(bbox, start, end):
 
     catalog = pystac_client.Client.open(
@@ -86,10 +102,11 @@ def img_change(stack):
     return change
     
 def deseason_func(x):
+    
     diff = x - x.mean(dim='time')
     return diff
     
-def deseason(stack):
+def deseason_quarter(stack):
     """
 
     """
