@@ -189,38 +189,92 @@ def calculate_index(stack, index):
         print("Invalid index name")
 def img_change(stack):
     """
-    Calculating change from previous image to current image
+    This function calculates the change at each time step in a time series
 
-    time[0] will be NA
-    
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+
+    Returns:
+    --------
+    stack : Dask xarray.DataArray
+        time series of change
     """
     shifted = stack.shift(time = 1)
     change = (stack-shifted)
     return change
     
 def deseason_func(x):
-    
+    """
+    This is a helper function for deseason_quarter
+
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        grouped time series
+
+    Returns:
+    --------
+    stack : Dask xarray.DataArray
+        normalized values
+    """
     diff = x - x.mean(dim='time')
     return diff
     
 def deseason_quarter(stack):
     """
+    This function deseasons a time series
 
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+
+    Returns:
+    --------
+    stack : Dask xarray.DataArray
+        time series of anomalies (deseasoned based on quarterly values)
     """
     deseason = stack.groupby(stack.time.dt.quarter).map(deseason_func)
     return deseason
     
 def linear_trend(stack):
     """
-    Function for calculating trend
-    
+    This function calculates a linear trend over the entirety of a time series on a pixel-by pixel basis
+
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+
+    Returns:
+    --------
+    trend : Dask xarray.DataArray
+        dataarray containing linear regression coeficcients
     """
     stack.coords['year'] = ('time', stack.time.dt.year.data)
     trend = stack.polyfit(dim = "year", deg = 1)
     return trend
 
 def forest_cover_plot(stack, threshold, RFDI=False):
+    """
+    This function creates a plot of forest cover by time
+    
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+    threshold : num
+        threshold of index value
+    RFDI : boolean
+        if the index is RFDI or not (RFDI indicates that lower values are more forested) Default is False
 
+    Returns:
+    --------
+    ax : pyplot figure
+        Figure of time series of number of pixels classified as forest over time
+    """
     if RFDI==True:
         stack["forest"] = stack < threshold
     else:
@@ -234,8 +288,44 @@ def forest_cover_plot(stack, threshold, RFDI=False):
     plt.title("Forest Cover in AOI")
     return ax
 
+def forest_diff_plots(stack, threshold, RFDI=False):
+    """
+    This function creates a number of plots of yearly forest change
 
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+    threshold : num
+        threshold of index value
+    RFDI : boolean
+        if the index is RFDI or not (RFDI indicates that lower values are more forested) Default is False
+    Returns:
+    --------
+    plot : pyplot plot
+        plot of yearly forest decrease/increase
+    """
+    if RFDI==True:
+        stack["forest"] = stack < threshold
+    else:
+        stack["forest"] = stack > threshold
+        
+    return stack.forest.astype(int).diff("time", label = "upper").plot.imshow(col="time", col_wrap=5)
+    
 def timeseries_plot(stack, index):
+    """
+    This function creates a plot of a time series averaged across x and y dimentions
+
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+    index : string
+        name of y axis label
+    --------
+    plot : pyplot plot
+        plot of index value throughout time
+    """
     tsmean = stack.mean(dim = ['y', 'x'], skipna = True)
     fig, ax = plt.subplots()
     tsmean.plot(ax=ax)
@@ -244,9 +334,33 @@ def timeseries_plot(stack, index):
     return ax
 
 def plot_year(stack, year):
+    """
+    Plots a year's worth of observations of a time series
+
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+    year : string
+        name of year
+    --------
+    plot : pyplot plot
+        plot of index values for the year
+    """
     return stack.sel(time=year).plot.imshow(col="time", col_wrap=4)
 
 def linear_reg_10yr(stack):
+    """
+    Plots yearly linear regression coeficcients and residuals for 10 years of data
+
+    Inputs:
+    --------    
+    stack : Dask xarray.DataArray
+        time series
+    --------
+    plot : pyplot plot
+        20 total plots, two for each year of regression coeficcient and residuals
+    """
     years = ('2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024')
 
     for i in range(0, 10):

@@ -1,14 +1,18 @@
-#Final project for Advanced Geospatial with Python
+# Final project for Advanced Geospatial with Python
 
 Adlai Nelson
 
 
 
-## Instructions
+## Instructions for Use
 
 Pull the data from my Github Repository
 
 `git clone https://github.com/adlai-nelson/geog313-final-project`
+
+navigate to folder where files were downloaded to
+
+`cd geog313-final-project`
 
 Create an image using the included dockerfile
 
@@ -20,4 +24,4 @@ Run the image using
 
 Paste the jupyterlab link into your local web browser
 
-Open Assign6.ipynb to run the analysis
+Open analysis.ipynb to run the analysis
